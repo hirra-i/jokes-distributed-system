@@ -1,0 +1,31 @@
+services:
+  database:
+    image: mysql:8
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jokesdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  joke-service:
+    build: ./joke-service
+    container_name: joke-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+
+  submit-service:
+    build: ./submit-service
+    container_name: submit-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+
+volumes:
+  mysql-data:

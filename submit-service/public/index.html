@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Submit Joke</title>
+</head>
+
+<body>
+
+<h1>Submit a Joke</h1>
+
+<input id="setupInput" placeholder="Enter joke setup">
+<input id="punchlineInput" placeholder="Enter punchline">
+
+<select id="typeSelect"></select>
+
+<input id="newType" placeholder="New type (optional)">
+
+<button onclick="submitJoke()">Submit Joke</button>
+
+<p id="message"></p>
+
+<script>
+
+async function loadTypes() {
+  const res = await fetch("http://localhost:3001/types");
+  const types = await res.json();
+
+  const select = document.getElementById("typeSelect");
+  select.innerHTML = "";
+
+  types.forEach(type => {
+    const option = document.createElement("option");
+    option.value = type.name;
+    option.textContent = type.name;
+    select.appendChild(option);
+  });
+}
+
+async function submitJoke() {
+  const setup = document.getElementById("setupInput").value;
+  const punchline = document.getElementById("punchlineInput").value;
+  const selectedType = document.getElementById("typeSelect").value;
+  const newType = document.getElementById("newType").value;
+
+  const type = newType || selectedType;
+
+  if (!setup || !punchline || !type) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  await fetch("http://localhost:3001/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      setup,
+      punchline,
+      type
+    })
+  });
+
+  alert("Joke submitted!");
+
+  document.getElementById("setupInput").value = "";
+  document.getElementById("punchlineInput").value = "";
+  document.getElementById("newType").value = "";
+
+  loadTypes(); // refresh dropdown
+}
+
+loadTypes();
+
+</script>
+
+</body>
+</html>

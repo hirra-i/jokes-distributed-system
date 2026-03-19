@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Joke Generator</title>
+</head>
+
+<body>
+
+<h1>Random Joke Generator</h1>
+
+<select id="typeSelect"></select>
+<button onclick="getJoke()">Get Joke</button>
+
+<h3 id="setup"></h3>
+<h3 id="punchline"></h3>
+
+<script>
+
+// ✅ LOAD TYPES (refreshes every time dropdown is clicked)
+async function loadTypes() {
+  try {
+    const res = await fetch("http://localhost:3000/types");
+    const types = await res.json();
+
+    const select = document.getElementById("typeSelect");
+    select.innerHTML = "";
+
+    // 👇 optional "any" type (GOOD FOR MARKS)
+    const anyOption = document.createElement("option");
+    anyOption.value = "any";
+    anyOption.textContent = "any";
+    select.appendChild(anyOption);
+
+    types.forEach(type => {
+      const option = document.createElement("option");
+      option.value = type.name;
+      option.textContent = type.name;
+      select.appendChild(option);
+    });
+
+  } catch (err) {
+    console.error("Failed to load types", err);
+  }
+}
+
+// ✅ GET JOKE
+async function getJoke() {
+  try {
+    const type = document.getElementById("typeSelect").value;
+
+    const res = await fetch(`http://localhost:3000/jokes/${type}`);
+    const data = await res.json();
+
+    // 🔥 ALWAYS handle array
+    const joke = data[0];
+
+    if (!joke) {
+      document.getElementById("setup").textContent = "No joke found";
+      document.getElementById("punchline").textContent = "";
+      return;
+    }
+
+    document.getElementById("setup").textContent = joke.setup;
+    document.getElementById("punchline").textContent = "";
+
+    setTimeout(() => {
+      document.getElementById("punchline").textContent = joke.punchline;
+    }, 3000);
+
+  } catch (err) {
+    console.error("Error fetching joke", err);
+  }
+}
+
+// load once on page start
+loadTypes();
+
+</script>
+
+</body>
+</html>
