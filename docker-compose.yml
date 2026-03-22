@@ -26,6 +26,28 @@ services:
       - "3001:3001"
     depends_on:
       - database
+      - joke-service
+      - rabbitmq
+    volumes:
+      - submit-cache:/app/cache
+
+  etl-service:
+    build: ./etl-service
+    container_name: etl-service
+    depends_on:
+      - rabbitmq
+      - database
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
 
 volumes:
   mysql-data:
+  rabbitmq-data:
+  submit-cache:

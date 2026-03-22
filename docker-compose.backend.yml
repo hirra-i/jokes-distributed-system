@@ -1,0 +1,30 @@
+services:
+  database:
+    image: mysql:8
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jokesdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  joke-service:
+    build: ./joke-service
+    container_name: joke-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+
+  etl-service:
+    build: ./etl-service
+    container_name: etl-service
+    depends_on:
+      - rabbitmq
+      - database
+
+volumes:
+  mysql-data:
